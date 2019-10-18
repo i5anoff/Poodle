@@ -5,9 +5,10 @@ function Poodle () {
   this.scale = 50
   this.offset = { x: 0, y: 0 }
   this.bounds = { x: 1000, z: 1000 }
+  this.orientation = { y: 0, z: 0 }
+  this.size = { x: 1, y: 1, z: 1 }
   this.showGrid = false
   this.mode = 'floor'
-  this.orientation = 0
   this.objects = []
 
   this.scene = new THREE.Scene()
@@ -66,37 +67,19 @@ function Poodle () {
     return geo
   }
 
-  this._wall = () => {
-    const geo = new THREE.Geometry()
-    const g = this.guides()
-    for (const vertex of [g.RTF, g.RTB, g.RBB, g.RBF, g.RTF]) {
-      geo.vertices.push(vertex)
-    }
-    return geo
-  }
-
-  this._handle = () => {
-    const geo = new THREE.Geometry()
-    const g = this.guides({ x: 1, y: 0.0125, z: 1 })
-    for (const vertex of [g.RTF, g.RTB]) {
-      geo.vertices.push(vertex)
-    }
-    return geo
-  }
-
-  this._pole = () => {
-    const geo = new THREE.Geometry()
-    const g = this.guides({ x: 1, y: 1, z: 0 })
-    for (const vertex of [g.RTF, g.RBB]) {
-      geo.vertices.push(vertex)
-    }
-    return geo
-  }
-
   this._edge = () => {
     const geo = new THREE.Geometry()
-    const g = this.guides({ x: 1, y: 0.0125, z: 1 })
-    for (const vertex of [g.RCF, g.RTC]) {
+    const g = this.guides()
+    for (const vertex of [g.CTF, g.CTB]) {
+      geo.vertices.push(vertex)
+    }
+    return geo
+  }
+
+  this._corner = () => {
+    const geo = new THREE.Geometry()
+    const g = this.guides()
+    for (const vertex of [g.CTF, g.LCF]) {
       geo.vertices.push(vertex)
     }
     return geo
@@ -118,7 +101,7 @@ function Poodle () {
     return geo
   }
 
-  this.guides = (size = { x: 1, y: 1, z: 1 }, scale = this.scale) => {
+  this.guides = (size = this.size, scale = this.scale) => {
     return {
       RTF: new THREE.Vector3(scale * (size.x / 2), scale * (size.y / 2), scale * (size.z / 2)),
       RTB: new THREE.Vector3(scale * (size.x / 2), scale * (size.y / 2), scale * (-size.z / 2)),
@@ -128,10 +111,13 @@ function Poodle () {
       RBB: new THREE.Vector3(scale * (size.x / 2), -scale * (size.y / 2), scale * (-size.z / 2)),
       LBF: new THREE.Vector3(scale * (-size.x / 2), -scale * (size.y / 2), scale * (size.z / 2)),
       LBB: new THREE.Vector3(scale * (-size.x / 2), -scale * (size.y / 2), scale * (-size.z / 2)),
-
-      RCF: new THREE.Vector3(scale * (size.x / 2), scale * (size.y / 4), scale * (size.z / 2)),
-      CTF: new THREE.Vector3(scale * (size.x / 4), scale * (size.y / 2), scale * (size.z / 2)),
-      RTC: new THREE.Vector3(scale * (size.x / 2), scale / 2, 0)
+      RCF: new THREE.Vector3(scale * (size.x / 2), 0, scale * (size.z / 2)),
+      LCF: new THREE.Vector3(scale * (-size.x / 2), 0, scale * (size.z / 2)),
+      CTF: new THREE.Vector3(0, scale * (size.y / 2), scale * (size.z / 2)),
+      CTB: new THREE.Vector3(0, scale * (size.y / 2), scale * (-size.z / 2)),
+      RTC: new THREE.Vector3(scale * (size.x / 2), scale / 2, 0),
+      CBF: new THREE.Vector3(0, scale * (size.y / 2), scale * (size.z / 2)),
+      CBB: new THREE.Vector3(0, scale * (-size.y / 2), scale * (size.z / 2))
     }
   }
 
@@ -139,7 +125,8 @@ function Poodle () {
     const stepped = new THREE.Vector3().copy(pos).divideScalar(this.scale).floor().multiplyScalar(this.scale).addScalar(this.scale / 2)
     const voxel = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x000000 }))
     voxel.position.set(stepped.x, stepped.y, stepped.z)
-    voxel.rotation.y = this.orientation
+    voxel.rotation.y = this.orientation.y
+    voxel.rotation.z = this.orientation.z
     this.scene.add(voxel)
     this.objects.push(voxel)
   }
@@ -151,8 +138,6 @@ function Poodle () {
         this.scene.remove(obj)
         this.objects.splice(this.objects.indexOf(obj), 1)
         return
-      } else {
-        console.log(obj.position, pos)
       }
     }
   }
@@ -200,14 +185,19 @@ function Poodle () {
   }
 
   this.setMode = (mode) => {
-    console.log('mode', mode)
+    this.orientation.y = 0
+    this.pointer.rotation.y = this.orientation.y
+    this.orientation.z = 0
+    this.pointer.rotation.z = this.orientation.z
     this.mode = mode
     this.pointer.geometry = this[`_${mode}`]()
   }
 
-  this.setOrientation = () => {
-    this.orientation += degToRad(90)
-    this.pointer.rotation.y = this.orientation
+  this.setOrientation = (y = 0, z = 0) => {
+    this.orientation.y += y * degToRad(90)
+    this.pointer.rotation.y = this.orientation.y
+    this.orientation.z += z * degToRad(90)
+    this.pointer.rotation.z = this.orientation.z
   }
 
   this.cast = (x, y) => {
@@ -284,7 +274,10 @@ function Poodle () {
       this.camera.position.y -= this.scale
     }
     if (e.key === 'r') {
-      this.setOrientation()
+      this.setOrientation(1, 0)
+    }
+    if (e.key === 'R') {
+      this.setOrientation(0, 1)
     }
     // Options
     if (e.key === 'q') {
@@ -306,16 +299,10 @@ function Poodle () {
       this.setMode('ramp')
     }
     if (e.key === '3') {
-      this.setMode('wall')
+      this.setMode('edge')
     }
     if (e.key === '4') {
-      this.setMode('handle')
-    }
-    if (e.key === '5') {
-      this.setMode('pole')
-    }
-    if (e.key === '6') {
-      this.setMode('edge')
+      this.setMode('corner')
     }
     this.focus()
   }

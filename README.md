@@ -19,14 +19,15 @@ shift d lookAt right
 shift x lookAt up
 shift z lookAt down
 
-r orientation
+r orientation(y)
+shift r orientation(z)
 q center
 e export
 
 1 floor
-2 ramp
-3 wall
-4 border
+2 edge
+3 ramp
+4 corner
 
 click add
 shift click remove
