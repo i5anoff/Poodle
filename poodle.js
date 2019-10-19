@@ -200,6 +200,11 @@ function Poodle () {
     this.pointer.rotation.z = this.orientation.z
   }
 
+  this.modScale = (mod = 0) => {
+    this.scale = clamp(this.scale + mod, 25, 100)
+    this.pointer.geometry = this[`_${this.mode}`]()
+  }
+
   this.cast = (x, y) => {
     this.mouse.set((x / this.el.width) * 2 - 1, -(y / this.el.height) * 2 + 1)
     this.raycaster.setFromCamera(this.mouse, this.camera)
@@ -291,7 +296,6 @@ function Poodle () {
       e.preventDefault()
       this.delete()
     }
-
     if (e.key === '1') {
       this.setMode('floor')
     }
@@ -303,6 +307,12 @@ function Poodle () {
     }
     if (e.key === '4') {
       this.setMode('corner')
+    }
+    if (e.key === ']') {
+      this.modScale(25)
+    }
+    if (e.key === '[') {
+      this.modScale(-25)
     }
     this.focus()
   }
@@ -336,5 +346,9 @@ function Poodle () {
 
   function degToRad (deg) {
     return deg * (Math.PI / 180)
+  }
+
+  function clamp (val, min, max) {
+    return Math.min(max, Math.max(min, val))
   }
 }

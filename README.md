@@ -19,6 +19,9 @@ shift d lookAt right
 shift x lookAt up
 shift z lookAt down
 
+] scale up
+[ scale down
+
 r orientation(y)
 shift r orientation(z)
 q center
