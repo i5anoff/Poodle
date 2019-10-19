@@ -4,7 +4,7 @@
 function Poodle () {
   this.scale = 50
   this.offset = { x: 0, y: 0 }
-  this.bounds = { x: 1000, z: 1000 }
+  this.bounds = { x: 2000, z: 2000 }
   this.orientation = { y: 0, z: 0 }
   this.size = { x: 1, y: 1, z: 1 }
   this.showGrid = false
