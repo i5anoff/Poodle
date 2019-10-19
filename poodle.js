@@ -17,7 +17,7 @@ function Poodle () {
   this.target = new THREE.Line(new THREE.Geometry(), new THREE.MeshBasicMaterial({ color: 0x72dec2 }))
   this.pointer = new THREE.Line(new THREE.Geometry(), new THREE.MeshBasicMaterial({ color: 0xff0000 }))
   this.contact = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({ visible: false }))
-  this.grid = new THREE.GridHelper(20 * this.scale, 20)
+  this.grid = new THREE.GridHelper(40 * this.scale, 40)
   this.raycaster = new THREE.Raycaster()
   this.mouse = new THREE.Vector2()
 
@@ -287,6 +287,7 @@ function Poodle () {
     // Options
     if (e.key === 'q') {
       this.target.position.set(0, 0, 0)
+      this.center()
     }
     if (e.key === 'Tab') {
       e.preventDefault()
