@@ -37,10 +37,3 @@ shift click remove
 tab toggle grid
 del delete last
 ```
-
-## TODO: 
-
-- right click to move target
-- object scale with brackets
-- arc mesh
-- fix issue with camera rotation
