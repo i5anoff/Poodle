@@ -1,6 +1,6 @@
 # Poodle
 
-Small, Sharp Scene Tool
+Small, Sharp Scene Tool. 
 
 ## Controls
 
@@ -38,9 +38,8 @@ tab toggle grid
 del delete last
 ```
 
-## TODO: 
+## Ecosystem
 
-- right click to move target
-- object scale with brackets
-- arc mesh
-- fix issue with camera rotation
+- [Poodle](https://hundredrabbits.github.io/Poodle/), scene
+- [Noodle](https://hundredrabbits.github.io/Noodle/), sketch
+- [Moogle](https://hundredrabbits.github.io/Moogle/), crop
