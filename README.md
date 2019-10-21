@@ -1,6 +1,6 @@
 # Poodle
 
-Small, Sharp Scene Tool
+Small, Sharp Scene Tool. 
 
 ## Controls
 
@@ -37,3 +37,9 @@ shift click remove
 tab toggle grid
 del delete last
 ```
+
+## Ecosystem
+
+- [Poodle](https://hundredrabbits.github.io/Poodle/), scene
+- [Noodle](https://hundredrabbits.github.io/Noodle/), sketch
+- [Moogle](https://hundredrabbits.github.io/Moogle/), crop
