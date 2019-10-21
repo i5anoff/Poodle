@@ -17,7 +17,7 @@ function Poodle () {
   this.target = new THREE.Line(new THREE.Geometry(), new THREE.MeshBasicMaterial({ color: 0x72dec2 }))
   this.pointer = new THREE.Line(new THREE.Geometry(), new THREE.MeshBasicMaterial({ color: 0xff0000 }))
   this.contact = new THREE.Mesh(new THREE.Geometry(), new THREE.MeshBasicMaterial({ visible: false }))
-  this.grid = new THREE.GridHelper(40 * this.scale, 40)
+  this.grid = new THREE.GridHelper(40 * this.scale, 20)
   this.raycaster = new THREE.Raycaster()
   this.mouse = new THREE.Vector2()
 
@@ -47,59 +47,6 @@ function Poodle () {
     this.resize(w, h)
     this.setMode('floor')
     this.focus()
-  }
-
-  this._floor = () => {
-    const geo = new THREE.Geometry()
-    const g = this.guides()
-    for (const vertex of [g.RBF, g.RBB, g.LBB, g.LBF, g.RBF]) {
-      geo.vertices.push(vertex)
-    }
-    return geo
-  }
-
-  this._ramp = () => {
-    const geo = new THREE.Geometry()
-    const g = this.guides()
-    for (const vertex of [g.RTF, g.RTB, g.LBB, g.LBF, g.RTF]) {
-      geo.vertices.push(vertex)
-    }
-    return geo
-  }
-
-  this._edge = () => {
-    const geo = new THREE.Geometry()
-    const g = this.guides()
-    for (const vertex of [g.CTF, g.CTB]) {
-      geo.vertices.push(vertex)
-    }
-    return geo
-  }
-
-  this._arc = () => {
-    const geo = new THREE.Geometry()
-    for (let i = 0; i < 10; i++) {
-      const x = -this.scale / 2 + (this.scale * Math.cos(degToRad(10 * i)))
-      const y = -this.scale / 2 + (this.scale * Math.sin(degToRad(10 * i)))
-      geo.vertices.push(new THREE.Vector3(x, y, -this.scale / 2))
-    }
-    return geo
-  }
-
-  this._target = () => {
-    const geo = new THREE.Geometry()
-    geo.vertices.push(new THREE.Vector3(this.scale / 2, 0, this.scale / 2))
-    geo.vertices.push(new THREE.Vector3(this.scale / 2, 0, -this.scale / 2))
-    geo.vertices.push(new THREE.Vector3(-this.scale / 2, 0, -this.scale / 2))
-    geo.vertices.push(new THREE.Vector3(-this.scale / 2, 0, this.scale / 2))
-    geo.vertices.push(new THREE.Vector3(this.scale / 2, 0, this.scale / 2))
-    return geo
-  }
-
-  this._contact = () => {
-    const geo = new THREE.PlaneBufferGeometry(this.bounds.x, this.bounds.z)
-    geo.rotateX(-Math.PI / 2)
-    return geo
   }
 
   this.guides = (size = this.size, scale = this.scale) => {
@@ -161,6 +108,12 @@ function Poodle () {
     this.renderer.render(this.scene, this.camera)
   }
 
+  this.raycast = (x, y) => {
+    this.mouse.set((x / this.el.width) * 2 - 1, -(y / this.el.height) * 2 + 1)
+    this.raycaster.setFromCamera(this.mouse, this.camera)
+    return this.raycaster.intersectObjects(this.objects)
+  }
+
   this.resize = (w, h) => {
     document.location.hash = `#${w}x${h}`
     this.el.width = w
@@ -206,17 +159,66 @@ function Poodle () {
     this.pointer.geometry = this[`_${this.mode}`]()
   }
 
-  this.cast = (x, y) => {
-    this.mouse.set((x / this.el.width) * 2 - 1, -(y / this.el.height) * 2 + 1)
-    this.raycaster.setFromCamera(this.mouse, this.camera)
-    return this.raycaster.intersectObjects(this.objects)
+  // Shapes
+
+  this._floor = () => {
+    const geo = new THREE.Geometry()
+    const g = this.guides()
+    for (const vertex of [g.RBF, g.RBB, g.LBB, g.LBF, g.RBF]) {
+      geo.vertices.push(vertex)
+    }
+    return geo
+  }
+
+  this._ramp = () => {
+    const geo = new THREE.Geometry()
+    const g = this.guides()
+    for (const vertex of [g.RTF, g.RTB, g.LBB, g.LBF, g.RTF]) {
+      geo.vertices.push(vertex)
+    }
+    return geo
+  }
+
+  this._edge = () => {
+    const geo = new THREE.Geometry()
+    const g = this.guides()
+    for (const vertex of [g.CTF, g.CTB]) {
+      geo.vertices.push(vertex)
+    }
+    return geo
+  }
+
+  this._arc = () => {
+    const geo = new THREE.Geometry()
+    for (let i = 0; i < 10; i++) {
+      const x = -this.scale / 2 + (this.scale * Math.cos(degToRad(10 * i)))
+      const y = -this.scale / 2 + (this.scale * Math.sin(degToRad(10 * i)))
+      geo.vertices.push(new THREE.Vector3(-this.scale / 2, x, y))
+    }
+    return geo
+  }
+
+  this._target = () => {
+    const geo = new THREE.Geometry()
+    geo.vertices.push(new THREE.Vector3(this.scale / 2, 0, this.scale / 2))
+    geo.vertices.push(new THREE.Vector3(this.scale / 2, 0, -this.scale / 2))
+    geo.vertices.push(new THREE.Vector3(-this.scale / 2, 0, -this.scale / 2))
+    geo.vertices.push(new THREE.Vector3(-this.scale / 2, 0, this.scale / 2))
+    geo.vertices.push(new THREE.Vector3(this.scale / 2, 0, this.scale / 2))
+    return geo
+  }
+
+  this._contact = () => {
+    const geo = new THREE.PlaneBufferGeometry(this.bounds.x, this.bounds.z)
+    geo.rotateX(-Math.PI / 2)
+    return geo
   }
 
   // Events
 
   this.onMouseMove = (event) => {
     event.preventDefault()
-    const intersects = this.cast(event.layerX, event.layerY)
+    const intersects = this.raycast(event.layerX, event.layerY)
     if (intersects.length > 0 && intersects[0].face) {
       const intersect = intersects[0]
       this.pointer.position.copy(intersect.point).add(intersect.face.normal)
@@ -227,7 +229,7 @@ function Poodle () {
 
   this.onMouseDown = (event) => {
     event.preventDefault()
-    const intersects = this.cast(event.layerX, event.layerY)
+    const intersects = this.raycast(event.layerX, event.layerY)
     if (intersects.length > 0) {
       const intersect = intersects[0]
       if (event.shiftKey && intersect.object === this.contact) {
@@ -245,81 +247,54 @@ function Poodle () {
   this.onKeyDown = (e) => {
     if (e.key === 'A') {
       this.target.position.x += this.scale
-    }
-    if (e.key === 'D') {
+    } else if (e.key === 'D') {
       this.target.position.x -= this.scale
-    }
-    if (e.key === 'W') {
+    } else if (e.key === 'W') {
       this.target.position.z += this.scale
-    }
-    if (e.key === 'S') {
+    } else if (e.key === 'S') {
       this.target.position.z -= this.scale
-    }
-    if (e.key === 'X') {
+    } else if (e.key === 'X') {
       this.contact.position.y += this.scale
-    }
-    if (e.key === 'Z') {
+    } else if (e.key === 'Z') {
       this.contact.position.y -= this.scale
-    }
-    if (e.key === 'w') {
+    } else if (e.key === 'w') {
       this.camera.translateZ(-this.scale)
-    }
-    if (e.key === 's') {
+    } else if (e.key === 's') {
       this.camera.translateZ(this.scale)
-    }
-    if (e.key === 'a') {
+    } else if (e.key === 'a') {
       this.camera.translateX(-this.scale)
-    }
-    if (e.key === 'd') {
+    } else if (e.key === 'd') {
       this.camera.translateX(this.scale)
-    }
-    if (e.key === 'x') {
+    } else if (e.key === 'x') {
       this.camera.position.y += this.scale
-    }
-    if (e.key === 'z') {
+    } else if (e.key === 'z') {
       this.camera.position.y -= this.scale
-    }
-    if (e.key === 'r') {
+    } else if (e.key === 'r') {
       this.setOrientation(1, 0)
-    }
-    if (e.key === 'R') {
+    } else if (e.key === 'R') {
       this.setOrientation(0, 1)
+    } else if (e.key === '1') {
+      this.setMode('floor')
+    } else if (e.key === '2') {
+      this.setMode('ramp')
+    } else if (e.key === '3') {
+      this.setMode('edge')
+    } else if (e.key === '4') {
+      this.setMode('arc')
+    } else if (e.key === ']') {
+      this.modScale(25)
+    } else if (e.key === '[') {
+      this.modScale(-25)
     }
-    // Options
-    if (e.key === 'q') {
-      this.target.position.set(0, 0, 0)
-      this.center()
-    }
+
     if (e.key === 'Tab') {
       e.preventDefault()
-      this.toggleGuide()
-    }
-    if (e.key === 'Backspace') {
-      e.preventDefault()
-      this.delete()
-    }
-    if (e.key === '1') {
-      this.setMode('floor')
-    }
-    if (e.key === '2') {
-      this.setMode('ramp')
-    }
-    if (e.key === '3') {
-      this.setMode('edge')
-    }
-    if (e.key === '4') {
-      this.setMode('arc')
-    }
-    if (e.key === ']') {
-      this.modScale(25)
-    }
-    if (e.key === '[') {
-      this.modScale(-25)
     }
     this.focus()
   }
 
   this.onKeyUp = (e) => {
+    e.preventDefault()
     if (e.key === 'e') {
       this.pointer.material.visible = false
       this.target.material.visible = false
@@ -329,6 +304,13 @@ function Poodle () {
       this.pointer.material.visible = true
       this.target.material.visible = true
       this.grid.material.visible = this.showGrid
+    } else if (e.key === 'Tab') {
+      this.toggleGuide()
+    } else if (e.key === 'Backspace') {
+      this.delete()
+    } else if (e.key === 'q') {
+      this.target.position.set(0, 0, 0)
+      this.center()
     }
     this.focus()
   }
