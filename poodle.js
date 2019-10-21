@@ -76,11 +76,12 @@ function Poodle () {
     return geo
   }
 
-  this._corner = () => {
+  this._arc = () => {
     const geo = new THREE.Geometry()
-    const g = this.guides()
-    for (const vertex of [g.CTF, g.LCF]) {
-      geo.vertices.push(vertex)
+    for (let i = 0; i < 10; i++) {
+      const x = -this.scale / 2 + (this.scale * Math.cos(degToRad(10 * i)))
+      const y = -this.scale / 2 + (this.scale * Math.sin(degToRad(10 * i)))
+      geo.vertices.push(new THREE.Vector3(x, y, -this.scale / 2))
     }
     return geo
   }
@@ -307,7 +308,7 @@ function Poodle () {
       this.setMode('edge')
     }
     if (e.key === '4') {
-      this.setMode('corner')
+      this.setMode('arc')
     }
     if (e.key === ']') {
       this.modScale(25)
