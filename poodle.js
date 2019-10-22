@@ -155,7 +155,7 @@ function Poodle () {
   }
 
   this.modScale = (mod = 0) => {
-    this.scale = clamp(this.scale + mod, 25, 100)
+    this.scale = clamp(this.scale + mod, 25, 400)
     this.pointer.geometry = this[`_${this.mode}`]()
   }
 
