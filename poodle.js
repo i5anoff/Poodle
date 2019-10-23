@@ -49,6 +49,12 @@ function Poodle () {
     this.focus()
   }
 
+  this.update = () => {
+  	const msg = `${this.mode} ${this.scale}px`
+  	if(document.title === msg){ return }
+  	document.title = msg
+  }
+
   this.guides = (size = this.size, scale = this.scale) => {
     return {
       RTF: new THREE.Vector3(scale * (size.x / 2), scale * (size.y / 2), scale * (size.z / 2)),
@@ -290,6 +296,7 @@ function Poodle () {
     if (e.key === 'Tab') {
       e.preventDefault()
     }
+    this.update()
     this.focus()
   }
 
@@ -300,7 +307,7 @@ function Poodle () {
       this.target.material.visible = false
       this.grid.material.visible = false
       this.render()
-      grab(this.renderer.domElement.toDataURL('image/png'))
+      grab(this.renderer.domElement.toDataURL('image/png'),`poodle${timestamp()}.png`)
       this.pointer.material.visible = true
       this.target.material.visible = true
       this.grid.material.visible = this.showGrid
@@ -312,6 +319,7 @@ function Poodle () {
       this.target.position.set(0, 0, 0)
       this.center()
     }
+    this.update()
     this.focus()
   }
 
@@ -334,5 +342,9 @@ function Poodle () {
 
   function clamp (val, min, max) {
     return Math.min(max, Math.max(min, val))
+  }
+  
+  function timestamp () {
+    return new Date().toISOString().slice(0, 10).replace(/-/g, '').trim()
   }
 }
