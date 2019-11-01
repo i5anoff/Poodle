@@ -45,7 +45,7 @@ function Poodle () {
 
   this.start = (w, h) => {
     this.grid.material.visible = false
-    this.camera.position.set(500, 800, 1300)
+    this.camera.position.set(300, 300, 300)
     this.resize(w, h)
     this.setMode('floor')
     this.focus()

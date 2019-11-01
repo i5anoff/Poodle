@@ -38,6 +38,10 @@ tab toggle grid
 del delete last
 ```
 
+## IO
+
+- To export an image file, simply press `e`.
+
 ## Ecosystem
 
 - [Poodle](https://hundredrabbits.github.io/Poodle/), scene
